@@ -43,7 +43,6 @@ public class EasyMockTest {
 	
 	@Test
 	public void testConnect() throws SQLException{
-		Connection dbConnection = null;
 		EasyMock.expect(mock.getConnection()).andReturn(connectionMock);
 		EasyMock.expect(mock.connect()).andReturn(true);
 		EasyMock.replay(mock);
