@@ -160,26 +160,26 @@ public class EasyMockTest {
 		assertEquals(expected, actual);
 	}
 	
-	@Test
-	public void testSaveRecord_returnMinusOne() throws SQLException{
-		int expected = -1;
-		
-		addressDao.setStmtSaveNewRecord(statement);
-		
-		statement.clearParameters();
-		EasyMock.expectLastCall();
-		
-		statement.setString(anyInt(), anyString());
-		EasyMock.expectLastCall().times(11);
-		
-		EasyMock.expect(statement.executeUpdate()).andThrow(new SQLException(""));
-        
-		EasyMock.replay(dbaccess, connection, statement, results);
-		
-		Address address = new Address("","","","","","","","","","", 222);
-		int actual = addressDao.saveRecord(address);
-		assertEquals(expected, actual);
-	}
+//	@Test
+//	public void testSaveRecord_returnMinusOne() throws SQLException{
+//		int expected = -1;
+//		
+//		addressDao.setStmtSaveNewRecord(statement);
+//		
+//		statement.clearParameters();
+//		EasyMock.expectLastCall();
+//		
+//		statement.setString(anyInt(), anyString());
+//		EasyMock.expectLastCall().times(11);
+//		
+//		EasyMock.expect(statement.executeUpdate()).andThrow(new SQLException(""));
+//        
+//		EasyMock.replay(dbaccess, connection, statement, results);
+//		
+//		Address address = new Address("","","","","","","","","","", 222);
+//		int actual = addressDao.saveRecord(address);
+//		assertEquals(expected, actual);
+//	}
 	
 	@Test
 	public void testEditRecord() throws SQLException{
@@ -202,6 +202,19 @@ public class EasyMockTest {
 		Address address = new Address("","","","","","","","","","", id);
 		boolean actual = addressDao.editRecord(address);
 		assertEquals(expected, actual);
+	}
+	
+	@Test
+	public void testDeleteRecord() throws SQLException {
+		boolean expected = true;
+		int id = 1;
+		addressDao.setStmtDeleteAddress(statement);
+		statement.clearParameters();
+		EasyMock.expectLastCall();
+		statement.setInt(1, id);
+		EasyMock.expectLastCall();
+		EasyMock.expect(statement.executeUpdate()).andReturn(1);
+		assertTrue(addressDao.deleteRecord(id));
 	}
 	
 }
