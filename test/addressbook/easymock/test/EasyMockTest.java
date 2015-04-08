@@ -82,8 +82,8 @@ public class EasyMockTest {
 
 	@After
 	public void tearDown() {
-		// EasyMock.verify(mock);
-		// EasyMock.verify(mock2);
+		EasyMock.verify(mock);
+		EasyMock.verify(connectionMock);
 	}
 
 //	@Test
@@ -93,26 +93,25 @@ public class EasyMockTest {
 
 	@Test
 	public void testEditRecord() throws SQLException {
-
 		Address addressMock = new Address();
-		addressMock.setAddress1("asd");
-		addressMock.setAddress2("something");
-		addressMock.setCity("Ottawa");
-		addressMock.setLastName("Ashraf Kashani");
-		addressMock.setFirstName("Hossein");
-		addressMock.setPhone("123");
-		addressMock.setPostalCode("123");
-		addressMock.setId(1);
-		addressMock.setState("123");
-		
-		
-
 		boolean result = addressDao.editRecord(addressMock);
 		assertTrue(result);
-		
-		EasyMock.verify(mock);
-		EasyMock.verify(connectionMock);
-
 	}
-
+	
+	@Test 
+	public void testDeleteRecord() {
+		Address addressMock = new Address();
+		boolean result = addressDao.deleteRecord(addressMock);
+		assertTrue(result);
+	}
+	
+	@Test
+	public void testSaveRecord() throws SQLException {
+		java.sql.ResultSet resultMock = EasyMock.createMock(java.sql.ResultSet.class);
+		EasyMock.expect(connectionMock.prepareStatement(strSaveAddress, 1).getGeneratedKeys())
+		.andReturn(resultMock);
+		Address addressmMock = new Address();
+		int result = addressDao.saveRecord(addressmMock);
+		assertEquals(0, result);
+	}
 }
