@@ -217,5 +217,40 @@ public class EasyMockTest {
 		assertTrue(addressDao.deleteRecord(id));
 	}
 	
+	@Test
+	public void testGetAddress() throws SQLException {
+		
+		addressDao.setStmtGetAddress(statement);
+		
+		int id = 1;
+		statement.clearParameters();
+		EasyMock.expectLastCall().once();
+		
+		statement.setInt(1, id);
+		EasyMock.expectLastCall().once();
+		
+		EasyMock.expect(statement.executeQuery()).andReturn(results);
+		
+		EasyMock.replay(statement);
+		
+		EasyMock.expect(results.next()).andReturn(true);
+		
+		EasyMock.expect(results.getString(anyString())).andReturn("test").times(11);
+		EasyMock.expect(results.getInt(anyString())).andReturn(id);
+		
+		Address Expectedaddress = new Address("test","test","test","test","test","test","test","test","test","test","test", id);
+		
+	
+		
+		EasyMock.replay( results);
+	
+
+		assertEquals(Expectedaddress, addressDao.getAddress(id));
+		
+		
+		
+		
+	}
+	
 }
 	
