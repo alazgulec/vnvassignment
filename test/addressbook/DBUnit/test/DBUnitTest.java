@@ -40,7 +40,8 @@ public class DBUnitTest {
 		dbaccess=new DbSource();
 		boolean res = dbaccess.connect();
 		
-		IDatabaseConnection setupConnection = new DatabaseConnection( dbaccess.getConnection() );
+		IDatabaseConnection setupConnection = new DatabaseConnection( dbaccess.getConnection() ); 
+		setupConnection.getConnection().setSchema("APP");
 		
 		FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
 		IDataSet dataSet = builder.build(this.getClass( ).getResource( "data.xml"));
@@ -66,16 +67,16 @@ public class DBUnitTest {
 		String lastNameExpected;
 		String lastNameActual;
 
-		connection = dbaccess.getConnection( );
+		connection = dbaccess.getConnection( ); 
 		try {
 			Statement stmt = connection.createStatement( );
-			ResultSet results = stmt.executeQuery( "SELECT * FROM APP.ADDRESS" );
+			ResultSet results = stmt.executeQuery( "SELECT * FROM ADDRESS" );
 
 			assertTrue( results.next( ) ); 
 
 			idExpected = 11;
 		    idActual = results.getInt("ID");
-			assertEquals( idExpected, idActual );
+	        assertEquals( idExpected, idActual );
 
 			firstNameExpected = "test1";
 			firstNameActual = results.getString("FIRSTNAME");
