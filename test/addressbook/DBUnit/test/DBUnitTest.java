@@ -5,20 +5,28 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 
+import org.dbunit.Assertion;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+
+import addressbook.core.Address;
+import addressbook.db.AddressDao;
 import addressbook.db.DbSource;
 import addressbook.db.IDataSource;
 
@@ -101,5 +109,38 @@ public class DBUnitTest {
 			fail("Unable to create SQL statement.");
 		}
 	}
+	
+	@Test
+	 public void testSaveRecord( ) throws Exception {
+		connection = dbaccess.getConnection();
+		try {
+			Address address=new Address("test3", "test3", "e",  "e",  "e",  "e",  "e",  "e",  "e",  "e");
+			address.setCountry("e");
+			AddressDao aDao=new AddressDao();
+			aDao.connect();
+			aDao.saveRecord(address);
+			
+			IDataSet expectedDataSet;
+			FlatXmlDataSetBuilder data = new FlatXmlDataSetBuilder();
+			expectedDataSet = data.build( this.getClass( ).getResource(
+					"AfterSave.xml" ) );
+			ITable expectedTable = expectedDataSet
+					.getTable( "ADDRESS" );
+
+			IDataSet databaseDataSet = new DatabaseConnection( dbaccess
+					.getConnection( ) ).createDataSet( );
+			ITable actualTable = databaseDataSet
+					.getTable( "ADDRESS");
+			ITable filteredTable = DefaultColumnFilter.includedColumnsTable(actualTable, 
+					expectedTable.getTableMetaData().getColumns());
+			Assertion.assertEquals( expectedTable, filteredTable );
+			
+		}
+		
+		catch(SQLException e) 
+		{
+			
+		}
+	 }
 
 }

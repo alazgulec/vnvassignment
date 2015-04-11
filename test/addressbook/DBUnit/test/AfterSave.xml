@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+	<ADDRESS LASTNAME="test1" FIRSTNAME="test1" MIDDLENAME="e" PHONE="e" EMAIL="e"  ADDRESS1="e" ADDRESS2="e"  CITY="e" STATE="e" POSTALCODE="e" COUNTRY="e" />
+	<ADDRESS LASTNAME="test2" FIRSTNAME="test2" MIDDLENAME="e" PHONE="e" EMAIL="e"  ADDRESS1="e" ADDRESS2="e"  CITY="e" STATE="e" POSTALCODE="e" COUNTRY="e" />
+	<ADDRESS LASTNAME="test3" FIRSTNAME="test3" MIDDLENAME="e" PHONE="e" EMAIL="e"  ADDRESS1="e" ADDRESS2="e"  CITY="e" STATE="e" POSTALCODE="e" COUNTRY="e" />
+	
+</dataset>
