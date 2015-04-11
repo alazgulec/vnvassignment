@@ -1,5 +1,10 @@
 package addressbook.DBUnit.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -79,5 +84,28 @@ public class DBUnitTest2 {
 		ITable filteredTable = DefaultColumnFilter.includedColumnsTable(
 				actualTable, expectedTable.getTableMetaData().getColumns());
 		Assertion.assertEquals(expectedTable, filteredTable);
+	}
+	
+	@Test
+	public void getListEntries() {
+		AddressDao aDao = new AddressDao();
+		aDao.connect();
+		List<ListEntry> list = aDao.getListEntries();
+		String firstNameExpected = "test1";
+		String firstNameActual = list.get(0).getFirstName();
+		assertEquals(firstNameExpected, firstNameActual);
+
+		String lastNameExpected = "test1";
+		String lastNameActual = list.get(0).getLastName();
+		assertEquals(lastNameExpected, lastNameActual);
+
+		firstNameExpected = "test2";
+		firstNameActual = list.get(1).getFirstName();
+		System.out.println(firstNameActual);
+		assertEquals(firstNameExpected, firstNameActual);
+
+		lastNameExpected = "test2";
+		lastNameActual = list.get(1).getLastName();
+		assertEquals(lastNameExpected, lastNameActual);
 	}
 }
