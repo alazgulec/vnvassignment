@@ -164,7 +164,17 @@ public class DBUnitTest2 {
 		String lastNameExpected = "test1";
 		String lastNameActual = address.getLastName();
 		assertEquals(lastNameExpected, lastNameActual);
-
+	}
+	
+	@Test
+	public void testSaveRecordFail() {
+		AddressDao aDao=new AddressDao();
+		aDao.connect();
+		List<ListEntry> list = aDao.getListEntries();
+		int id = list.get(0).getId();
+		Address address=new Address();
+		int result = aDao.saveRecord(address);
+		System.out.println(result);
 	}
 	
 }
