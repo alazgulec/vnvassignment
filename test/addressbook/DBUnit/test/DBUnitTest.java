@@ -20,9 +20,11 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
+import org.dbunit.util.fileloader.FlatXmlDataFileLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 
 
 import addressbook.core.Address;
@@ -32,25 +34,30 @@ import addressbook.db.IDataSource;
 
 public class DBUnitTest {
 
-	private DbSource dbaccess;
-	private Connection connection;
+	
+	
+	AddressDao addressDao;
 
 	@Before
 	public void setUp() throws Exception {
-		dbaccess = new DbSource();
-		boolean res = dbaccess.connect();
-		if(res){
-			System.out.println("Connection set!");
-		}
+		
+	
+		addressDao=new AddressDao();
+		addressDao.connect(); 
+		
+		
+		
+		
 		IDatabaseConnection setupConnection = new DatabaseConnection(
-				dbaccess.getConnection());
+				addressDao.getDbConnection());
 		setupConnection.getConnection().setSchema("APP");
-
-		FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
+		
+		FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder(); 
 		IDataSet dataSet = builder.build(this.getClass()
 				.getResource("data.xml"));
 
 		DatabaseOperation.CLEAN_INSERT.execute(setupConnection, dataSet);
+		
 	}
 
 	/**
@@ -58,8 +65,12 @@ public class DBUnitTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		connection.close();
+		
+	
+		addressDao.disconnect();
 	}
+	
+	
 
 	@Test
 	public void testGetConnection() {
@@ -70,16 +81,13 @@ public class DBUnitTest {
 		String lastNameExpected;
 		String lastNameActual;
 
-		connection = dbaccess.getConnection();
+		
 		try {
-			Statement stmt = connection.createStatement();
+			Statement stmt = addressDao.getDbConnection().createStatement();
 			ResultSet results = stmt.executeQuery("SELECT * FROM ADDRESS");
 
 			assertTrue(results.next());
 
-//			idExpected = 11;
-//			idActual = results.getInt("ID");
-//			assertEquals(idExpected, idActual);
 
 			firstNameExpected = "test1";
 			firstNameActual = results.getString("FIRSTNAME");
@@ -90,10 +98,6 @@ public class DBUnitTest {
 			assertEquals(lastNameExpected, lastNameActual);
 
 			assertTrue(results.next());
-
-//			idExpected = 12;
-//			idActual = results.getInt("ID");
-//			assertEquals(idExpected, idActual);
 
 			firstNameExpected = "test2";
 			firstNameActual = results.getString("FIRSTNAME");
@@ -112,13 +116,12 @@ public class DBUnitTest {
 	
 	@Test
 	 public void testSaveRecord( ) throws Exception {
-		connection = dbaccess.getConnection();
+		
 		try {
 			Address address=new Address("test3", "test3", "e",  "e",  "e",  "e",  "e",  "e",  "e",  "e");
 			address.setCountry("e");
-			AddressDao aDao=new AddressDao();
-			aDao.connect();
-			aDao.saveRecord(address);
+			
+			addressDao.saveRecord(address);
 			
 			IDataSet expectedDataSet;
 			FlatXmlDataSetBuilder data = new FlatXmlDataSetBuilder();
@@ -127,8 +130,7 @@ public class DBUnitTest {
 			ITable expectedTable = expectedDataSet
 					.getTable( "ADDRESS" );
 
-			IDataSet databaseDataSet = new DatabaseConnection( dbaccess
-					.getConnection( ) ).createDataSet( );
+			IDataSet databaseDataSet = new DatabaseConnection( addressDao.getDbConnection() ).createDataSet( );
 			ITable actualTable = databaseDataSet
 					.getTable( "ADDRESS");
 			ITable filteredTable = DefaultColumnFilter.includedColumnsTable(actualTable, 
