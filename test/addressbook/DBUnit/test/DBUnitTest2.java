@@ -57,7 +57,8 @@ public class DBUnitTest2 {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		//connection.close();
+		//connection.close()
+		dbaccess.disconnect();
 	}
 
 	@Test
@@ -151,15 +152,17 @@ public class DBUnitTest2 {
 	 }
 	
 	@Test
-	public void testGetListEntries() {
+	public void testGetAddress() {
 		AddressDao aDao=new AddressDao();
 		aDao.connect();
 		List<ListEntry> list = aDao.getListEntries();
-		String firstNameExpected = "test1";
-		String firstNameActual = list.get(0).getFirstName();
+		int id = list.get(0).getId();
+		Address address = aDao.getAddress(id);
+		String firstNameExpected = address.getFirstName();
+		String firstNameActual = "test1";
 		assertEquals(firstNameExpected, firstNameActual);
 		String lastNameExpected = "test1";
-		String lastNameActual = list.get(0).getFirstName();
+		String lastNameActual = address.getLastName();
 		assertEquals(lastNameExpected, lastNameActual);
 
 	}
