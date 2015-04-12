@@ -108,4 +108,60 @@ public class DBUnitTest2 {
 		lastNameActual = list.get(1).getLastName();
 		assertEquals(lastNameExpected, lastNameActual);
 	}
+	
+	@Test
+	public void testEditRecord() {
+		connection = dbaccess.getConnection();
+		try {
+			AddressDao aDao=new AddressDao();
+			aDao.connect();
+			List<ListEntry> list = aDao.getListEntries();
+			int id = list.get(0).getId();
+			Address address=new Address("test3", "test3", "e",  "e",  "e",  "e",  "e",  "e",  "e",  "e");
+			address.setCountry("e");
+			address.setId(id);
+			aDao.editRecord(address);
+			IDataSet expectedDataSet;
+			FlatXmlDataSetBuilder data = new FlatXmlDataSetBuilder();
+			expectedDataSet = data.build( this.getClass( ).getResource(
+					"AfterUpdate.xml" ) );
+			ITable expectedTable = expectedDataSet
+					.getTable( "ADDRESS" );
+
+			IDataSet databaseDataSet = new DatabaseConnection( dbaccess
+					.getConnection( ) ).createDataSet( );
+			ITable actualTable = databaseDataSet
+					.getTable( "ADDRESS");
+			ITable filteredTable = DefaultColumnFilter.includedColumnsTable(actualTable, 
+					expectedTable.getTableMetaData().getColumns());
+			Assertion.assertEquals( expectedTable, filteredTable );
+			
+		}
+		
+		catch(SQLException e) 
+		{
+			
+		} catch (DataSetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DatabaseUnitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	 }
+	
+	@Test
+	public void testGetListEntries() {
+		AddressDao aDao=new AddressDao();
+		aDao.connect();
+		List<ListEntry> list = aDao.getListEntries();
+		String firstNameExpected = "test1";
+		String firstNameActual = list.get(0).getFirstName();
+		assertEquals(firstNameExpected, firstNameActual);
+		String lastNameExpected = "test1";
+		String lastNameActual = list.get(0).getFirstName();
+		assertEquals(lastNameExpected, lastNameActual);
+
+	}
+	
 }
