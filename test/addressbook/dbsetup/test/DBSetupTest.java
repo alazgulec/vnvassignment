@@ -17,6 +17,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -61,6 +62,13 @@ public class DBSetupTest {
 
 		  dbSetup.launch();
 		 }
+		 
+		 @After
+			public void tearDown( ) throws Exception {
+				if ( addressDao != null ) {
+					addressDao.disconnect();
+				}
+			}
 		 
 		 @Test
 		 public void testGetConnection() {
@@ -170,6 +178,7 @@ public class DBSetupTest {
 				addressDao.deleteRecord(id);
 				
 				connection = dbaccess.getConnection();
+				
 				try {
 					PreparedStatement stmtPreparedStatement= connection.prepareStatement("SELECT * FROM APP.ADDRESS WHERE LASTNAME= ?");
 					stmtPreparedStatement.setString(1, "Kashani");    
@@ -177,13 +186,132 @@ public class DBSetupTest {
 
 					assertFalse(results.next());
 			 
-}
+				    }
 				
 				catch (SQLException e) {
 					fail("Unable to create SQL statement.");
 				}
 		 }
 		 
+		 @Test
+		 public void testEditRecord() {
+			 
+			  addressDao=new AddressDao();
+			  addressDao.connect();
+			  dbaccess=(DbSource)addressDao.getDbaccess();
+			 
+			 Address address=new Address("AshrafKashani","Hossein", "p", "p", "p", "p","p","p","p","p");
+			 address.setCountry("P");
+			 
+			 int id = 0;
+				List<ListEntry> list = addressDao.getListEntries();
+				for (int i = 0; i < list.size(); i++) {
+					if (list.get(i).getLastName().equals("Kashani")) {
+						id = list.get(i).getId();
+					}
+				}
+			 address.setId(id);
+			 
+			 addressDao.editRecord(address);
+			 
+			 connection = dbaccess.getConnection();
+			 
+				try {
+					PreparedStatement stmtPreparedStatement= connection.prepareStatement("SELECT * FROM APP.ADDRESS WHERE LASTNAME= ?");
+					stmtPreparedStatement.setString(1, "AshrafKashani");    
+					ResultSet results = stmtPreparedStatement.executeQuery();
+
+					assertTrue(results.next());
+			 
+				    }
+				
+				catch (SQLException e) {
+					fail("Unable to create SQL statement.");
+				}
+			 
+		 }
+		 
+		 
+		 @Test
+		 public void testGetListEntry() {
+			 
+			 String firstNameExpected;
+			 String firstNameActual;
+			 String lastNameExpected;
+			 String lastNameActual;
+			 
+			 addressDao=new AddressDao();
+			 addressDao.connect();
+			 dbaccess=(DbSource)addressDao.getDbaccess();
+			 
+			 int id = 0;
+			 List<ListEntry> list = addressDao.getListEntries();
+			
+			 
+			 dbaccess=(DbSource)addressDao.getDbaccess();
+			 connection = dbaccess.getConnection();
+			  try {
+			   Statement stmt = connection.createStatement();
+			   ResultSet results = stmt.executeQuery("SELECT * FROM APP.ADDRESS");
+
+			   assertTrue(results.next()); 
+			
+
+			   firstNameActual =  list.get(0).getFirstName();
+			   firstNameExpected = results.getString("FIRSTNAME");
+			   assertEquals(firstNameExpected, firstNameActual);
+
+			   lastNameActual =  list.get(0).getLastName();
+			   lastNameExpected = results.getString("LASTNAME");
+			   assertEquals(lastNameExpected, lastNameActual);
+
+			   assertTrue(results.next());
+
+		
+
+			   firstNameActual =  list.get(1).getFirstName();
+			   firstNameExpected = results.getString("FIRSTNAME");
+			   
+			   assertEquals(firstNameExpected, firstNameActual);
+
+			   lastNameActual = list.get(1).getLastName();
+			   lastNameExpected = results.getString("LASTNAME");
+			   assertEquals(lastNameExpected, lastNameActual);
+
+			   assertFalse(results.next());
+			  } catch (SQLException e) {
+			   fail("Unable to create SQL statement.");
+			  }
+			 
+		 }
+		 
+		 @Test
+		 public void testGetAddress() {
+			 
+			 Address address=new Address("Kashani","Hossein", "p", "p", "p", "p","p","p","p","p");
+			 address.setCountry("P");
+			 
+			 Address actualAddress= new Address();
+			 
+			 addressDao=new AddressDao();
+			 addressDao.connect();
+			 
+			 int id = 0;
+				List<ListEntry> list = addressDao.getListEntries();
+				for (int i = 0; i < list.size(); i++) {
+					if (list.get(i).getLastName().equals("Kashani")) {
+						id = list.get(i).getId();
+					}
+				}
+			 address.setId(id);
+			 
+			 actualAddress= addressDao.getAddress(id);
+			 
+			 assertEquals(address, actualAddress);
+			 
+			 
+			 
+		 }
 		 
 	}
 
