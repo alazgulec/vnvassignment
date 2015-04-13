@@ -13,7 +13,10 @@ import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockPreparedStatement;
 import com.mockrunner.mock.jdbc.MockResultSet;
+import com.mockrunner.mock.jdbc.MockStatement;
 
+import org.easymock.internal.MockBuilder;
+import org.easymock.internal.MocksBehavior;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +33,8 @@ public class MockRunnerTest extends BasicJDBCTestCaseAdapter  {
 	 private Address address;
 	 private MockResultSet resultSet; 
 	 PreparedStatementResultSetHandler resultHandler;
+	 MockStatement mStatement;
+	 MockConnection connection;
 	
 	 private int id = 1;
 	 private String lastName = "Ashraf Kashani";
@@ -81,9 +86,10 @@ public class MockRunnerTest extends BasicJDBCTestCaseAdapter  {
 	 public void setUp() throws Exception {
 		 super.setUp();
 		 JDBCMockObjectFactory mockFactory = getJDBCMockObjectFactory();
-		 MockConnection connection = getJDBCMockObjectFactory().getMockConnection();
+		  connection = getJDBCMockObjectFactory().getMockConnection(); 
 		 resultHandler = connection.getPreparedStatementResultSetHandler();	     
 		 resultSet = resultHandler.createResultSet();
+		 mStatement=new MockStatement(connection);
 		 aDao = new AddressDao();
 		 aDao.connect();
 		 address = new Address(lastName, 
@@ -241,20 +247,20 @@ public class MockRunnerTest extends BasicJDBCTestCaseAdapter  {
 	 
 	 @Test
 	 public void testGetListEntries() {
-		 resultSet.addRow(new Object[] { id, 
-				 lastName, 
-				 firstName, 
-				 middleName, 
-				 phone, 
-				 email, 
-				 address1, 
-				 address2, 
-				 city, 
-				 state, 
-				 postalCode, 
-				 country });		 
-		 aDao.saveRecord(address);
-		 resultHandler.prepareGlobalResultSet(resultSet);
+		 
+		 StatementResultSetHandler statementHandler =
+				 connection.getStatementResultSetHandler();
+				 MockResultSet result = statementHandler.createResultSet();
+				
+				 
+				 result.addColumn("ID", new Object[]{ id });
+				 result.addColumn("LASTNAME", new Object[]{ lastName });
+				 result.addColumn("FIRSTNAME", new Object[]{ firstName });
+				 result.addColumn("MIDDLENAME", new Object[]{ middleName });
+		
+		 statementHandler.prepareResultSet(strGetListEntries,result);
+				
+		
 		 List<ListEntry> listEntries = aDao.getListEntries();
 		 ListEntry listEntry = listEntries.get(0);
 			
