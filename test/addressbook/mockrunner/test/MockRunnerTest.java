@@ -3,6 +3,7 @@ package addressbook.mockrunner.test;
 import static org.junit.Assert.*;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 
 import com.mockrunner.jdbc.CallableStatementResultSetHandler;
@@ -25,24 +26,23 @@ import com.mockrunner.jdbc.BasicJDBCTestCaseAdapter;
 
 public class MockRunnerTest extends BasicJDBCTestCaseAdapter  {
 	
-	 private AddressDao addressDao;
+	 private AddressDao aDao;
 	 private Address address;
+	 private MockResultSet resultSet; 
+	 PreparedStatementResultSetHandler resultHandler;
 	
-	 int id = 1;
-	 private String lastName = "Doe";
-	 private String firstName = "John";
-	 private String middleName = "Wolf";
-	 private String phone = "613-700-1234";
-	 private  String email = "john.doe@gamil.com";
-	 private String address1 = "1234 King Edward";
-	 private String address2 = "School of Information Technology & Engineering";
+	 private int id = 1;
+	 private String lastName = "Ashraf Kashani";
+	 private String firstName = "Hossein";
+	 private String middleName = "The Danger";
+	 private String phone = "6131234567";
+	 private String email = "hokash@gmail.com";
+	 private String address1 = "900 Patrick St.";
+	 private String address2 = "Suite no: 1104";
 	 private String city = "Ottawa";
 	 private String state = "Ontario";
-	 private String postalCode = "K1N 6N5";
+	 private String postalCode = "K1XQ7W";
 	 private String country = "Canada";
-
-	 private MockResultSet results; 
-	 PreparedStatementResultSetHandler stmntResultHandler;
 	 
 	 private static final String strGetAddress =
 			 "SELECT * FROM APP.ADDRESS " +
@@ -80,16 +80,24 @@ public class MockRunnerTest extends BasicJDBCTestCaseAdapter  {
 	 @Before
 	 public void setUp() throws Exception {
 		 super.setUp();
-		 
 		 JDBCMockObjectFactory mockFactory = getJDBCMockObjectFactory();
 		 MockConnection connection = getJDBCMockObjectFactory().getMockConnection();
-		    
-		 stmntResultHandler = connection.getPreparedStatementResultSetHandler();	     
-		 results = stmntResultHandler.createResultSet();
-		 
-		 addressDao = new AddressDao();
-		 addressDao.connect();
-		 address = new Address(lastName, firstName, middleName, phone, email, address1, address2, city, state, postalCode, country, id);
+		 resultHandler = connection.getPreparedStatementResultSetHandler();	     
+		 resultSet = resultHandler.createResultSet();
+		 aDao = new AddressDao();
+		 aDao.connect();
+		 address = new Address(lastName, 
+				 firstName, 
+				 middleName, 
+				 phone, 
+				 email, 
+				 address1, 
+				 address2, 
+				 city, 
+				 state, 
+				 postalCode, 
+				 country, 
+				 id);
 	 }
 	
 	 @After
@@ -100,14 +108,22 @@ public class MockRunnerTest extends BasicJDBCTestCaseAdapter  {
 	 @Test
 	 public void testSaveRecord() throws Exception {
 		 int id = 1;
-		 
-		 results.addRow(new Object[] { id, lastName, firstName, middleName, phone, email, address1, address2, city, state, postalCode, country });
-		 stmntResultHandler.prepareGlobalGeneratedKeys(results);
-		 
+		 resultSet.addRow(new Object[] { id, 
+				 lastName, 
+				 firstName, 
+				 middleName, 
+				 phone, 
+				 email, 
+				 address1, 
+				 address2, 
+				 city, 
+				 state, 
+				 postalCode, 
+				 country });
+		 resultHandler.prepareGlobalGeneratedKeys(resultSet);
 		 int expected = id;
-		 int actual = addressDao.saveRecord(address);
+		 int actual = aDao.saveRecord(address);
 		 assertEquals(expected, actual);
-		 
 		 verifyPreparedStatementPresent(strSaveAddress);
 		 verifySQLStatementExecuted(strSaveAddress);
 		 verifySQLStatementParameter(strSaveAddress, 0, 1, lastName);
@@ -123,35 +139,32 @@ public class MockRunnerTest extends BasicJDBCTestCaseAdapter  {
 		 verifySQLStatementParameter(strSaveAddress, 0, 11, country);
 	 }
 	 
-//	 @Test
-//	 public void testSaveRecord_returnMinusOne() throws Exception{
-//		 int expected = -1;
-//			
-//		 stmntResultHandler.prepareThrowsSQLException(strSaveAddress);
-//		 
-//		 int actual = addressDao.saveRecord(address);
-//		 assertEquals(expected, actual);
-//	 
-//		 verifyPreparedStatementPresent(strSaveAddress);
-//		 verifySQLStatementNotExecuted(strSaveAddress);
-//	 }
-	 
 	 @Test
 	 public void testEditRecord() throws SQLException {
 		 int id = 1;
-		 results.addRow(new Object[] { id, "Gulec", "Alaz", middleName, phone, email, address1, address2, city, state, postalCode, country });
+		 resultSet.addRow(new Object[] { id, 
+				 "Gulec", 
+				 "Alaz", 
+				 middleName, 
+				 phone, 
+				 email, 
+				 address1, 
+				 address2, 
+				 city, 
+				 state, 
+				 postalCode, 
+				 country });
 		 String changedLastName = "Gulec";
 		 String changedFirstName = "Alaz";
-		 results.getRow(1).set(1, changedLastName);
-		 results.getRow(1).set(2, changedFirstName);
-		 stmntResultHandler.prepareGlobalGeneratedKeys(results);
-		 addressDao.saveRecord(address);
+		 resultSet.getRow(1).set(1, changedLastName);
+		 resultSet.getRow(1).set(2, changedFirstName);
+		 resultHandler.prepareGlobalGeneratedKeys(resultSet);
+		 aDao.saveRecord(address);
 		 address.setLastName("Gulec");
 		 address.setFirstName("Alaz");
 		 boolean expected = true;
-		 boolean actual = addressDao.editRecord(address);
+		 boolean actual = aDao.editRecord(address);
 		 assertEquals(expected, actual);
-
 		 verifyPreparedStatementPresent(strUpdateAddress);
 		 verifySQLStatementExecuted(strUpdateAddress);
 		 verifySQLStatementParameter(strUpdateAddress, 0, 1, changedLastName);
@@ -170,10 +183,21 @@ public class MockRunnerTest extends BasicJDBCTestCaseAdapter  {
 	 @Test
 	 public void testDeleteRecord() throws SQLException {
 		 int id = 1;
-		 results.addRow(new Object[] { id, lastName, firstName, middleName, phone, email, address1, address2, city, state, postalCode, country });
-		 addressDao.saveRecord(address);
+		 resultSet.addRow(new Object[] { id, 
+				 lastName, 
+				 firstName, 
+				 middleName, 
+				 phone, 
+				 email, 
+				 address1, 
+				 address2, 
+				 city, 
+				 state, 
+				 postalCode, 
+				 country });
+		 aDao.saveRecord(address);
 		 boolean expected = true;
-		 boolean actual = addressDao.deleteRecord(id);
+		 boolean actual = aDao.deleteRecord(id);
 		 assertEquals(expected, actual);
 		 verifyPreparedStatementPresent(strDeleteAddress);
 		 verifySQLStatementExecuted(strDeleteAddress);
@@ -190,49 +214,28 @@ public class MockRunnerTest extends BasicJDBCTestCaseAdapter  {
 		 verifySQLStatementParameter(strDeleteAddress, 0, 11, null);
 	 }
 	 
-//	 @Test
-//	 public void testGetAddress() {
-//		 results.addRow(new Object[] { id, lastName, firstName, middleName, phone, email, address1, address2, city, state, postalCode, country });
-//		 stmntResultHandler.prepareGlobalGeneratedKeys(results);
-//		 addressDao.saveRecord(address);
-//		 Address retrievedAddress = addressDao.getAddress(0);
-//		 int expected = id;
-//		 int actual = retrievedAddress.getId();
-//		 assertEquals(expected, actual);
-//		 verifyPreparedStatementPresent(strGetAddress);
-//		 verifySQLStatementExecuted(strGetAddress);
-//		 verifySQLStatementParameter(strGetAddress, 0, 1, lastName);
-//		 verifySQLStatementParameter(strGetAddress, 0, 2, firstName);
-//		 verifySQLStatementParameter(strGetAddress, 0, 3, middleName);
-//		 verifySQLStatementParameter(strGetAddress, 0, 4, phone);
-//		 verifySQLStatementParameter(strGetAddress, 0, 5, email);
-//		 verifySQLStatementParameter(strGetAddress, 0, 6, address1);
-//		 verifySQLStatementParameter(strGetAddress, 0, 7, address2);
-//		 verifySQLStatementParameter(strGetAddress, 0, 8, city);
-//		 verifySQLStatementParameter(strGetAddress, 0, 9, state);
-//		 verifySQLStatementParameter(strGetAddress, 0, 10, postalCode);
-//		 verifySQLStatementParameter(strGetAddress, 0, 11, country);
-//	 }
-	 
-//	 @Test
-//	 public void testGetListEntries() {
-//		 results.addRow(new Object[] { id, lastName, firstName, middleName, phone, email, address1, address2, city, state, postalCode, country });
-//		 stmntResultHandler.prepareGlobalGeneratedKeys(results);
-//		 addressDao.saveRecord(address);
-//		 List<ListEntry> listEntries = addressDao.getListEntries();
-//		 int entryId = listEntries.get(0).getId();
-//		 verifyPreparedStatementPresent(strGetListEntries);
-//		 verifySQLStatementExecuted(strGetListEntries);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 1, lastName);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 2, firstName);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 3, middleName);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 4, phone);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 5, email);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 6, address1);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 7, address2);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 8, city);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 9, state);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 10, postalCode);
-//		 verifySQLStatementParameter(strGetListEntries, 0, 11, country);
-//	 }
+	 @Test
+	 public void testGetAddress() {
+		 
+		 resultSet.addColumn("LASTNAME", new Object[]{ lastName });
+		 resultSet.addColumn("FIRSTNAME", new Object[]{ firstName });
+		 resultSet.addColumn("MIDDLENAME", new Object[]{ middleName });
+		 resultSet.addColumn("PHONE", new Object[]{ phone });
+		 resultSet.addColumn("EMAIL", new Object[]{ email });
+		 resultSet.addColumn("ADDRESS1", new Object[]{ address1 } );
+		 resultSet.addColumn("ADDRESS2", new Object[]{ address2 });
+		 resultSet.addColumn("CITY", new Object[]{ city });
+		 resultSet.addColumn("STATE", new Object[]{ state });
+		 resultSet.addColumn("POSTALCODE", new Object[]{ postalCode });
+		 resultSet.addColumn("COUNTRY", new Object[]{ country });
+		 resultSet.addColumn("ID", new Object[]{ id });
+		 resultHandler.prepareResultSet(strGetAddress, resultSet, new HashMap());
+		 resultHandler.prepareGlobalGeneratedKeys(resultSet);
+		 Address expected = address;
+		 Address actual = aDao.getAddress(id);		
+		 assertTrue(expected.equals(actual));
+		 verifyPreparedStatementPresent(strGetAddress);
+		 verifySQLStatementExecuted(strGetAddress);
+		 verifySQLStatementParameter(strGetAddress, 0, 1, id);
+	}
 }
