@@ -238,4 +238,34 @@ public class MockRunnerTest extends BasicJDBCTestCaseAdapter  {
 		 verifySQLStatementExecuted(strGetAddress);
 		 verifySQLStatementParameter(strGetAddress, 0, 1, id);
 	}
+	 
+	 @Test
+	 public void testGetListEntries() {
+		 resultSet.addRow(new Object[] { id, 
+				 lastName, 
+				 firstName, 
+				 middleName, 
+				 phone, 
+				 email, 
+				 address1, 
+				 address2, 
+				 city, 
+				 state, 
+				 postalCode, 
+				 country });		 
+		 aDao.saveRecord(address);
+		 resultHandler.prepareGlobalResultSet(resultSet);
+		 List<ListEntry> listEntries = aDao.getListEntries();
+		 ListEntry listEntry = listEntries.get(0);
+			
+		 int entryCount = listEntries.size();
+		 assertEquals(1, entryCount);
+			
+		 assertEquals(id, listEntry.getId());	
+		 assertEquals(lastName, listEntry.getLastName());
+		 assertEquals(firstName, listEntry.getFirstName());
+		 assertEquals(middleName, listEntry.getMiddleName());
+		 
+		 verifySQLStatementExecuted(strGetListEntries);
+	 }
 }
