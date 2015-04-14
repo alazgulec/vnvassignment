@@ -14,14 +14,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import sun.util.logging.resources.logging;
 import addressbook.core.Address;
 import addressbook.db.AddressDao;
 import addressbook.db.DbSource;
@@ -48,8 +51,9 @@ public class DBSetupTest {
 						.columns("LASTNAME", "FIRSTNAME", "MIDDLENAME",
 								"PHONE", "EMAIL", "ADDRESS1", "ADDRESS2",
 								"CITY", "STATE", "POSTALCODE", "COUNTRY")
-						.values("Deans", "Jane", "Fox", "+1-613-1234567", "deansjane@uottawa.ca", "900 Kane St.", "1104", "Ottawa",
-								"Ontario", "K1NJ1N", "Canada")
+						.values("Deans", "Jane", "Fox", "+1-613-1234567",
+								"deansjane@uottawa.ca", "900 Kane St.", "1104",
+								"Ottawa", "Ontario", "K1NJ1N", "Canada")
 						.values("Kashani", "Hossein", "p", "p", "p", "p", "p",
 								"p", "p", "p", "p").build());
 
@@ -75,15 +79,14 @@ public class DBSetupTest {
 
 		addressDao = new AddressDao();
 		addressDao.connect();
-
 		dbaccess = (DbSource) addressDao.getDbaccess();
 		connection = dbaccess.getConnection();
 		try {
 			Statement stmt = connection.createStatement();
 			ResultSet results = stmt.executeQuery("SELECT * FROM APP.ADDRESS");
-			
+
 			assertTrue(results.next());
-			
+
 			String expected = "Jane";
 			String actual = results.getString("FIRSTNAME");
 			assertEquals(expected, actual);
@@ -91,31 +94,35 @@ public class DBSetupTest {
 			expected = "Deans";
 			actual = results.getString("LASTNAME");
 			assertEquals(expected, actual);
-			
+
 			expected = "Deans";
 			actual = results.getString("LASTNAME");
 			assertEquals(expected, actual);
-			
+
 			expected = "900 Kane St.";
 			actual = results.getString("ADDRESS1");
+			assertEquals(expected, actual);
+
+			expected = "1104";
+			actual = results.getString("ADDRESS2");
 			assertEquals(expected, actual);
 
 			expected = "Fox";
 			actual = results.getString("MIDDLENAME");
 			assertEquals(expected, actual);
-			
+
 			expected = "+1-613-1234567";
 			actual = results.getString("PHONE");
 			assertEquals(expected, actual);
-			
+
 			expected = "deansjane@uottawa.ca";
 			actual = results.getString("EMAIL");
 			assertEquals(expected, actual);
-			
+
 			expected = "Ottawa";
 			actual = results.getString("CITY");
 			assertEquals(expected, actual);
-			
+
 			expected = "Ontario";
 			actual = results.getString("STATE");
 			assertEquals(expected, actual);
@@ -123,11 +130,11 @@ public class DBSetupTest {
 			expected = "K1NJ1N";
 			actual = results.getString("POSTALCODE");
 			assertEquals(expected, actual);
-			
+
 			expected = "Canada";
 			actual = results.getString("COUNTRY");
 			assertEquals(expected, actual);
-			
+
 			assertTrue(results.next());
 
 			expected = "Hossein";
@@ -145,15 +152,11 @@ public class DBSetupTest {
 			expected = "p";
 			actual = results.getString("ADDRESS2");
 			assertEquals(expected, actual);
-			
+
 			expected = "p";
 			actual = results.getString("CITY");
 			assertEquals(expected, actual);
-			
-			expected = "p";
-			actual = results.getString("STATE");
-			assertEquals(expected, actual);
-			
+
 			expected = "p";
 			actual = results.getString("STATE");
 			assertEquals(expected, actual);
@@ -161,14 +164,15 @@ public class DBSetupTest {
 			expected = "p";
 			actual = results.getString("POSTALCODE");
 			assertEquals(expected, actual);
-			
+
 			expected = "p";
 			actual = results.getString("COUNTRY");
 			assertEquals(expected, actual);
-			
+
 			assertFalse(results.next());
-			
+
 		} catch (SQLException e) {
+			System.out.println("SQL Exception thrown in testGetConnection: " + e.getMessage() + " at SQL State: " + e.getSQLState());
 			fail("Unable to create SQL statement.");
 		}
 
@@ -190,24 +194,51 @@ public class DBSetupTest {
 		connection = dbaccess.getConnection();
 		try {
 			PreparedStatement stmtPreparedStatement = connection
-					.prepareStatement("SELECT * FROM APP.ADDRESS WHERE FIRSTNAME= ?");
+					.prepareStatement("SELECT * FROM APP.ADDRESS WHERE LASTNAME= ?");
 			stmtPreparedStatement.setString(1, "added");
 			ResultSet results = stmtPreparedStatement.executeQuery();
 
 			results.next();
 
-			String firstNameExpected = "added";
-			String firstNameActual = results.getString("FIRSTNAME");
-			System.out.println(firstNameActual);
-			assertEquals(firstNameExpected, firstNameActual);
+			String expected = "added";
+			String actual = results.getString("FIRSTNAME");
+			assertEquals(expected, actual);
 
-			String lastNameExpected = "added";
-			String lastNameActual = results.getString("LASTNAME");
-			assertEquals(lastNameExpected, lastNameActual);
+			expected = "added";
+			actual = results.getString("LASTNAME");
+			assertEquals(expected, actual);
 
+			expected = "e";
+			actual = results.getString("MIDDLENAME");
+			assertEquals(expected, actual);
+
+			expected = "e";
+			actual = results.getString("ADDRESS1");
+			assertEquals(expected, actual);
+
+			expected = "e";
+			actual = results.getString("ADDRESS2");
+			assertEquals(expected, actual);
+
+			expected = "e";
+			actual = results.getString("CITY");
+			assertEquals(expected, actual);
+
+			expected = "e";
+			actual = results.getString("STATE");
+			assertEquals(expected, actual);
+
+			expected = "e";
+			actual = results.getString("POSTALCODE");
+			assertEquals(expected, actual);
+
+			expected = "e";
+			actual = results.getString("COUNTRY");
+			assertEquals(expected, actual);
 		}
 
 		catch (SQLException e) {
+			System.out.println("SQL Exception thrown in testSaveRecord: " + e.getMessage() + " at SQL State: " + e.getSQLState());
 			fail("Unable to create SQL statement.");
 		}
 
@@ -219,8 +250,9 @@ public class DBSetupTest {
 		addressDao = new AddressDao();
 		addressDao.connect();
 		dbaccess = (DbSource) addressDao.getDbaccess();
-
 		int id = 0;
+		
+		try {
 		List<ListEntry> list = addressDao.getListEntries();
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i).getLastName().equals("Kashani")) {
@@ -228,20 +260,16 @@ public class DBSetupTest {
 			}
 		}
 		addressDao.deleteRecord(id);
-
 		connection = dbaccess.getConnection();
-
-		try {
 			PreparedStatement stmtPreparedStatement = connection
 					.prepareStatement("SELECT * FROM APP.ADDRESS WHERE LASTNAME= ?");
 			stmtPreparedStatement.setString(1, "Kashani");
 			ResultSet results = stmtPreparedStatement.executeQuery();
-
 			assertFalse(results.next());
-
 		}
 
 		catch (SQLException e) {
+			System.out.println("SQL Exception thrown in testDeleteRecord: " + e.getMessage() + " at SQL State: " + e.getSQLState());
 			fail("Unable to create SQL statement.");
 		}
 	}
@@ -281,6 +309,7 @@ public class DBSetupTest {
 		}
 
 		catch (SQLException e) {
+			System.out.println("SQL Exception thrown in testEditRecord: " + e.getMessage() + " at SQL State: " + e.getSQLState());
 			fail("Unable to create SQL statement.");
 		}
 
@@ -304,27 +333,36 @@ public class DBSetupTest {
 
 			assertTrue(results.next());
 
-			String firstNameActual = list.get(0).getFirstName();
-			String firstNameExpected = results.getString("FIRSTNAME");
-			assertEquals(firstNameExpected, firstNameActual);
+			String expected = results.getString("FIRSTNAME");
+			String actual = list.get(0).getFirstName();
+			assertEquals(expected, actual);
 
-			String lastNameActual = list.get(0).getLastName();
-			String lastNameExpected = results.getString("LASTNAME");
-			assertEquals(lastNameExpected, lastNameActual);
+			expected = results.getString("LASTNAME");
+			actual = list.get(0).getLastName();
+			assertEquals(expected, actual);
+
+			expected = results.getString("MIDDLENAME");
+			actual = list.get(0).getMiddleName();
+			assertEquals(expected, actual);
 
 			assertTrue(results.next());
 
-			firstNameActual = list.get(1).getFirstName();
-			firstNameExpected = results.getString("FIRSTNAME");
+			expected = list.get(1).getFirstName();
+			actual = results.getString("FIRSTNAME");
+			assertEquals(expected, actual);
 
-			assertEquals(firstNameExpected, firstNameActual);
+			expected = results.getString("LASTNAME");
+			actual = list.get(1).getLastName();
+			assertEquals(expected, actual);
 
-			lastNameActual = list.get(1).getLastName();
-			lastNameExpected = results.getString("LASTNAME");
-			assertEquals(lastNameExpected, lastNameActual);
+			expected = results.getString("MIDDLENAME");
+			actual = list.get(1).getMiddleName();
+			assertEquals(expected, actual);
 
 			assertFalse(results.next());
+
 		} catch (SQLException e) {
+			System.out.println("SQL Exception thrown in testGetListEntry: " + e.getMessage() + " at SQL State: " + e.getSQLState());
 			fail("Unable to create SQL statement.");
 		}
 
@@ -342,17 +380,19 @@ public class DBSetupTest {
 		addressDao = new AddressDao();
 		addressDao.connect();
 
-		int id = 0;
-		List<ListEntry> list = addressDao.getListEntries();
-		for (int i = 0; i < list.size(); i++) {
-			if (list.get(i).getLastName().equals("Kashani")) {
-				id = list.get(i).getId();
+		try {
+			int id = 0;
+			List<ListEntry> list = addressDao.getListEntries();
+			for (int i = 0; i < list.size(); i++) {
+				if (list.get(i).getLastName().equals("Kashani")) {
+					id = list.get(i).getId();
+				}
 			}
+			address.setId(id);
+			actualAddress = addressDao.getAddress(id);
+		} catch (Exception e) {
+			System.out.println("SQL Exception thrown in testGetAddress: " + e.getMessage() );
 		}
-		address.setId(id);
-
-		actualAddress = addressDao.getAddress(id);
-
 		assertEquals(address, actualAddress);
 
 	}
